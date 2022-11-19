@@ -22,6 +22,7 @@ namespace API.Services
                 Address = shop.Address,
                 OpeningHours = shop.OpeningHours
             }).ToListAsync();
+            return coffeeShops;
         }
     }
 }

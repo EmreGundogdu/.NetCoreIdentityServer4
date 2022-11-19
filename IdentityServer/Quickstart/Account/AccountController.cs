@@ -133,9 +133,9 @@ namespace IdentityServerHost.Quickstart.UI
                         };
 
                         // issue authentication cookie with subject ID and username
-                        var isuser = new IdentityServerUser(user.SubjectId)
+                        var isuser = new IdentityServerUser(user.Id)
                         {
-                            DisplayName = user.Username
+                            DisplayName = user.UserName
                         };
 
                         await HttpContext.SignInAsync(isuser, props);
