@@ -1,13 +1,27 @@
+using IdentityServer;
 using IdentityServer.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+var seed = args.Contains("/seed");
+if (seed)
+{
+    args = args.Except(new[] { "/seed" }).ToArray();
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var assembly = typeof(Program).Assembly.GetName().Name;
+if (seed)
+{
+    SeedData.EnsureSeedData(builder.Configuration.GetConnectionString("DefaultConn"));
+}
+// Add services to the container.
+builder.Services.AddDbContext<AspNetIdentityContext>(options =>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConn"),b=>b.MigrationsAssembly(assembly)));
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AspNetIdentityContext>();
-builder.Services.AddIdentityServer().AddAspNetIdentity<IdentityUser>().AddConfigurationStore(opt =>
+builder.Services.AddIdentityServer()
+    .AddAspNetIdentity<IdentityUser>()
+    .AddConfigurationStore(opt =>
 {
     opt.ConfigureDbContext = b => b.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConn"), opt => opt.MigrationsAssembly(assembly));
 }).AddOperationalStore(opt =>
@@ -30,13 +44,9 @@ if (app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 
-app.UseRouting();
-
 app.UseIdentityServer();
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseRouting();
 
 app.UseEndpoints(x =>
 {
